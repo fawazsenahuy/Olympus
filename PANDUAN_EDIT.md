@@ -68,7 +68,7 @@ cohort: {
 }
 ```
 
-Ubah nilai `motto` sesuai slogan terbaru angkatan, lalu simpan file dan muat ulang browser.
+Ubah nilai `motto` sesuai slogan terbaru angkatan, lalu simpan file dan muat ulang browser. Pada objek `about.symbols`, kamu juga dapat memperbarui narasi 5 elemen filosofi logo (`trisula`, `gunung`, `ombak`, `bintang`, dan `tulisan`).
 
 ---
 
