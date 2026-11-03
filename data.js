@@ -63,39 +63,46 @@ window.OLYMPUS_DATA = {
 
   // 2. Tentang Angkatan, Makna Logo, Visi & Misi
   about: {
-    meaningTitle: "Filosofi Nama & Lambang",
+    meaningTitle: 'Makna Utama Logo "Olympus Legacy"',
     meaningLead:
-      "Olympus Legacy lahir dari pertemuan dua lanskap agung: keteguhan puncak Gunung Olympus tempat para penjaga kebijaksanaan berhimpun, dan kedalaman samudra tempat arus perubahan terus bergerak.",
+      "Ibarat sebuah perjalanan menuju Gunung Olympus, logo ini menceritakan perjuangan kita bersama untuk mencapai puncak kesuksesan.",
     meaningParagraph:
-      "Sebagai angkatan MMXXVI Pendidikan Sistem dan Teknologi Informasi UPI, nama ini bukan sekadar sebutan, melainkan janji kolektif bahwa setiap baris kode, karya visual, dan langkah pengabdian yang kami bangun hari ini akan menjadi warisan yang menerangi generasi berikutnya.",
+      "Dengan keahlian yang berbeda-beda, kita saling bekerja sama untuk mendaki dan menciptakan karya nyata lewat teknologi yang berdampak bagi banyak orang, selalu berpegang teguh pada Tri Dharma Perguruan Tinggi.",
     symbols: [
       {
         id: "trisula",
-        name: "Trisula Petir di Poros Tengah",
-        latin: "Tridens & Fulmen",
+        name: "Trisula (Di Tengah)",
+        latin: "Tri Dharma Perguruan Tinggi",
         description:
-          "Melambangkan tiga dharma mahasiswa PSTI: penguasaan teknologi, kepekaan pendidikan, dan ketajaman inovasi. Kilatan petir yang melilit gagang trisula menandakan kecepatan berpikir dan energi perubahan di era digital."
+          'Ini ibarat "senjata" atau pegangan utama kita. Tiga ujungnya melambangkan Tri Dharma Perguruan Tinggi (Pendidikan, Penelitian, dan Pengabdian). Artinya, semua tindakan dan karya kita selalu berpusat pada tiga hal tersebut.'
       },
       {
         id: "gunung",
-        name: "Puncak Kembar Gunung Olympus",
-        latin: "Mons Olympus",
+        name: "Gunung Jaringan",
+        latin: "Olympus & Sistem Informasi",
         description:
-          "Siluet geometris dua puncak gunung merepresentasikan cita-cita luhur, keteguhan prinsip, serta fondasi keilmuan yang kokoh. Garis-garis tegasnya menggambarkan logika terstruktur dan ketangguhan mendaki tantangan akademik."
+          "Gambar gunung melambangkan Olympus, tempat kita berpijak. Kalau diperhatikan, gunung ini dibentuk dari garis-garis yang saling menyambung mirip jaringan sistem, menandakan identitas kita sebagai anak teknologi atau sistem informasi."
       },
       {
         id: "ombak",
-        name: "Gelombang Samudra Penopang",
-        latin: "Unda Profunda",
+        name: "Gelombang Air (Di Bawah)",
+        latin: "Persatuan & Manfaat",
         description:
-          "Lengkungan ombak di sisi kiri, kanan, dan dasar lambang mencerminkan kemampuan beradaptasi yang dinamis, solidaritas yang merangkul seluruh 35 anggota, serta semangat yang tak pernah surut."
+          "Air selalu menyatukan berbagai aliran menjadi satu arus yang kuat. Maknanya, walaupun kita punya kelebihan dan latar belakang yang berbeda-beda, saat kita bersatu, kekuatan kita akan sangat besar dan terus mengalir membawa manfaat."
       },
       {
         id: "bintang",
-        name: "Bintang Kutub Bersudut Delapan",
-        latin: "Stella Octangula",
+        name: "Petir & Bintang Bercahaya",
+        latin: "Inovasi & Legacy",
         description:
-          "Terletak tepat di puncak lingkaran sebagai kompas penunjuk arah. Delapan sudutnya melambangkan penjuru mata angin kolaborasi dan integritas moral yang menjaga langkah angkatan tetap satu tujuan."
+          'Petir yang melilit trisula melambangkan energi, kekuatan, dan pergerakan inovasi teknologi kita yang cepat. Sedangkan bintang yang bersinar di puncak melambangkan "Legacy" — jejak baik, prestasi, dan warisan yang akan menerangi dan menginspirasi masa depan.'
+      },
+      {
+        id: "tulisan",
+        name: "Tulisan Melingkar",
+        latin: "PSTI • MMXXVI • UPI",
+        description:
+          'Teks "PSTI • MMXXVI • UPI" adalah bingkai identitas kita. Ini jadi pengingat kebanggaan bahwa pergerakan dan karya hebat ini lahir dari PSTI angkatan 2026.'
       }
     ],
     vision:

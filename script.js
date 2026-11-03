@@ -179,7 +179,8 @@
             trisula: "scale(1.06)",
             gunung: "scale(1.05) rotate(-2deg)",
             ombak: "scale(1.05) translateY(-4px)",
-            bintang: "scale(1.06) translateY(4px)"
+            bintang: "scale(1.06) translateY(4px)",
+            tulisan: "scale(1.04) rotate(1.5deg)"
           };
           previewImg.style.transform = transforms[symbolId] || "scale(1)";
         }
