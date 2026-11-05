@@ -96,3 +96,20 @@ Ubah nilai `motto` sesuai slogan terbaru angkatan, lalu simpan file dan muat ula
 Buka [`quizData.js`](file:///home/sena/Projects/Olympus/quizData.js):
 - Bagian `gods` menyimpan deskripsi, simbol SVG, kelebihan, kelemahan bercanda, rekomendasi divisi, dan pasangan duet untuk ke-12 dewa (`zeus`, `hera`, `poseidon`, `demeter`, `athena`, `apollo`, `artemis`, `ares`, `aphrodite`, `hephaestus`, `hermes`, `dionysus`).
 - Bagian `questions` menyimpan 8 pertanyaan beserta 4 pilihan jawaban dan bobot `points` (1 sampai 3 poin ke 1–3 dewa pada setiap opsi).
+
+---
+
+## 5. Aturan Desain Agar Tetap Konsisten
+
+Semua nilai desain ada di bagian atas [`style.css`](file:///home/sena/Projects/Olympus/style.css) (`:root`). Saat menambah komponen baru, **pakai token ini, jangan menulis angka baru**:
+
+| Token | Kegunaan |
+|---|---|
+| `--bg`, `--bg-elevated`, `--bg-panel`, `--bg-card` | Tingkatan permukaan. Pemisah antar-permukaan = beda tone, bukan garis/bayangan. |
+| `--accent` | Satu warna aksen (tombol utama, item aktif, garis kiri penanda). |
+| `--font-display` (Cinzel) / `--font-body` (Inter) | Hanya dua jenis huruf. |
+| `--dur-fast`, `--dur`, `--dur-slow` | Durasi hover, dialog/tema, dan reveal. |
+| `--lift-control`, `--lift-card`, `--nudge` | Gerak hover: tombol naik 2px, kartu naik 4px, item daftar geser 4px. |
+
+Aturan lain: sudut kotak tegas (tanpa radius) kecuali avatar/logo yang bulat; tanpa gradien, glow, atau efek kaca.
+Untuk animasi muncul saat scroll cukup tambahkan atribut `data-reveal` pada elemen; termasuk elemen yang dirender lewat JavaScript.

@@ -59,6 +59,10 @@
       toggleBtn.addEventListener("click", () => {
         const current = html.getAttribute("data-theme") === "light" ? "light" : "dark";
         const next = current === "dark" ? "light" : "dark";
+        // Transisi warna halus sementara saat tema berganti
+        html.classList.add("theme-switching");
+        window.clearTimeout(initTheme.fadeTimer);
+        initTheme.fadeTimer = window.setTimeout(() => html.classList.remove("theme-switching"), 450);
         html.setAttribute("data-theme", next);
         localStorage.setItem(STORAGE_KEYS.THEME, next);
         if (themeLabel) {
@@ -430,6 +434,9 @@
         filterBar.querySelectorAll(".filter-chip").forEach((c) => {
           c.classList.toggle("is-active", c === chip);
         });
+        if (chip.scrollIntoView) {
+          chip.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+        }
         renderFilteredMembers();
       });
     }
@@ -506,6 +513,7 @@
           type="button"
           class="member-card"
           data-member-id="${member.id}"
+          data-reveal
           aria-label="Buka profil ${escapeHtml(member.name)}, ${escapeHtml(member.role)}"
         >
           <div class="member-card-top">
@@ -1224,6 +1232,22 @@
           hamburgerBtn.setAttribute("aria-expanded", "false");
         });
       });
+
+      // Tutup menu mobile saat klik di luar header atau tekan Escape
+      document.addEventListener("click", (e) => {
+        if (!mainNav.classList.contains("is-open")) return;
+        if (!e.target.closest(".site-header")) {
+          mainNav.classList.remove("is-open");
+          hamburgerBtn.setAttribute("aria-expanded", "false");
+        }
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && mainNav.classList.contains("is-open")) {
+          mainNav.classList.remove("is-open");
+          hamburgerBtn.setAttribute("aria-expanded", "false");
+        }
+      });
     }
 
     // Highlight Section Aktif dengan IntersectionObserver
@@ -1266,56 +1290,145 @@
       counters.forEach((c) => counterObserver.observe(c));
     }
 
-    // Animasi Reveal saat Scroll (Kompatibel dengan prefers-reduced-motion & Inspector)
+    // Animasi Reveal saat Scroll — satu sistem untuk elemen statis maupun yang dirender ulang
+    // (kartu anggota setelah filter/pencarian). Hanya memasang kelas; gaya ada di style.css.
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const revealItems = document.querySelectorAll("[data-reveal]");
 
     if (!prefersReducedMotion && "IntersectionObserver" in window) {
+      document.documentElement.classList.add("js-reveal");
+
       const revealObserver = new IntersectionObserver(
         (entries, obs) => {
+          let batchIndex = 0;
           entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.style.transform = "translateY(0px)";
-              entry.target.style.opacity = "1";
-              obs.unobserve(entry.target);
-            }
+            if (!entry.isIntersecting) return;
+            // Stagger bertahap gaya v2 untuk elemen yang muncul bersamaan (siklus 6 langkah × 70ms)
+            entry.target.style.setProperty("--reveal-delay", `${(batchIndex % 6) * 70}ms`);
+            entry.target.classList.add("is-revealed");
+            batchIndex += 1;
+            obs.unobserve(entry.target);
           });
         },
-        { threshold: 0.12 }
+        { threshold: 0.1, rootMargin: "0px 0px -6% 0px" }
       );
 
-      revealItems.forEach((item, idx) => {
-        const rect = item.getBoundingClientRect();
-        if (rect.top > window.innerHeight) {
-          item.style.transform = "translateY(18px)";
-          item.style.opacity = "0.92";
-          item.style.transitionDelay = `${(idx % 4) * 55}ms`;
+      // Blok-blok yang ikut dianimasikan seperti di v2 (selain yang sudah punya data-reveal).
+      // Elemen dilewati bila sudah berada di dalam / membungkus elemen reveal lain agar tidak dobel.
+      const AUTO_REVEAL_SELECTOR = [
+        ".section-header-split",
+        ".about-narrative-grid > *",
+        ".stats-ledger",
+        ".symbol-anatomy-panel",
+        ".vision-mission-grid > *",
+        ".members-toolbar",
+        ".quiz-layout-grid > *",
+        ".timeline-track",
+        ".footer-top-grid > *"
+      ].join(",");
+
+      const armReveals = () => {
+        document.querySelectorAll(AUTO_REVEAL_SELECTOR).forEach((el) => {
+          if (el.hasAttribute("data-reveal")) return;
+          if (el.querySelector("[data-reveal]") || (el.parentElement && el.parentElement.closest("[data-reveal]"))) return;
+          el.setAttribute("data-reveal", "");
+        });
+        document.querySelectorAll("[data-reveal]:not([data-reveal-armed])").forEach((item) => {
+          item.setAttribute("data-reveal-armed", "");
           revealObserver.observe(item);
-        } else {
-          item.style.transform = "translateY(0px)";
-          item.style.opacity = "1";
-        }
+        });
+      };
+
+      armReveals();
+      const mainEl = document.querySelector("main");
+      if (mainEl && "MutationObserver" in window) {
+        new MutationObserver(armReveals).observe(mainEl, { childList: true, subtree: true });
+      }
+    }
+
+    // Progress Bar Scroll
+    const progressBar = document.createElement("div");
+    progressBar.className = "scroll-progress";
+    progressBar.setAttribute("aria-hidden", "true");
+    document.body.appendChild(progressBar);
+
+    const updateScrollUi = () => {
+      const y = window.scrollY || window.pageYOffset;
+      const docEl = document.documentElement;
+      const maxScroll = docEl.scrollHeight - docEl.clientHeight || 1;
+      progressBar.style.transform = `scaleX(${Math.min(1, y / maxScroll).toFixed(4)})`;
+
+      if (backToTopBtn) {
+        backToTopBtn.hidden = y < 480;
+      }
+      // Parallax ringan hero lewat CSS variable agar bisa digabung dengan tilt
+      if (heroParallax && !prefersReducedMotion && y < 900) {
+        heroParallax.style.setProperty("--parallax-y", `${(y * 0.08).toFixed(1)}px`);
+      }
+    };
+
+    window.addEventListener("scroll", updateScrollUi, { passive: true });
+    updateScrollUi();
+
+    // Tilt 3D lambang hero mengikuti kursor (hanya perangkat dengan hover)
+    if (heroParallax && !prefersReducedMotion && window.matchMedia("(hover: hover)").matches) {
+      heroParallax.addEventListener("pointermove", (e) => {
+        const rect = heroParallax.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        heroParallax.style.setProperty("--tilt-x", `${(-y * 10).toFixed(2)}deg`);
+        heroParallax.style.setProperty("--tilt-y", `${(x * 10).toFixed(2)}deg`);
+      });
+      heroParallax.addEventListener("pointerleave", () => {
+        heroParallax.style.setProperty("--tilt-x", "0deg");
+        heroParallax.style.setProperty("--tilt-y", "0deg");
       });
     }
 
-    // Parallax Ringan di Hero & Tombol Back-to-Top
-    window.addEventListener(
-      "scroll",
-      () => {
-        const y = window.scrollY || window.pageYOffset;
-        if (backToTopBtn) {
-          backToTopBtn.hidden = y < 480;
+    // Smooth scroll kustom gaya v2 (cubic ease-in-out) untuk semua tautan anchor & tombol kembali ke atas
+    const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+    const smoothScrollToY = (targetY, hashToPush) => {
+      if (prefersReducedMotion) {
+        window.scrollTo(0, targetY);
+        if (hashToPush) history.replaceState(null, "", hashToPush);
+        return;
+      }
+      const startY = window.scrollY || window.pageYOffset;
+      const distance = targetY - startY;
+      const duration = Math.min(1400, 500 + Math.abs(distance) * 0.35);
+      const startTime = performance.now();
+      document.documentElement.style.scrollBehavior = "auto";
+
+      const frame = (now) => {
+        const progress = Math.min(1, (now - startTime) / duration);
+        window.scrollTo(0, startY + distance * easeInOutCubic(progress));
+        if (progress < 1) {
+          requestAnimationFrame(frame);
+        } else {
+          document.documentElement.style.scrollBehavior = "";
+          if (hashToPush) history.replaceState(null, "", hashToPush);
         }
-        if (heroParallax && !prefersReducedMotion && y < 900) {
-          heroParallax.style.transform = `translate3d(0, ${(y * 0.08).toFixed(1)}px, 0)`;
-        }
-      },
-      { passive: true }
-    );
+      };
+
+      requestAnimationFrame(frame);
+    };
+
+    document.addEventListener("click", (e) => {
+      const anchor = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!anchor) return;
+      const id = anchor.getAttribute("href").slice(1);
+      const targetEl = id && document.getElementById(id);
+      if (!targetEl) return;
+      e.preventDefault();
+      const headerEl = document.querySelector(".site-header");
+      const offset = id === "hero" || id === "top" ? 0 : (headerEl ? headerEl.offsetHeight : 68);
+      const targetY = Math.max(0, targetEl.getBoundingClientRect().top + (window.scrollY || window.pageYOffset) - offset);
+      smoothScrollToY(targetY, `#${id}`);
+    });
 
     if (backToTopBtn) {
       backToTopBtn.addEventListener("click", () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        smoothScrollToY(0, "");
       });
     }
   }
@@ -1364,6 +1477,31 @@
       lightboxModal.addEventListener("click", (e) => {
         if (e.target === lightboxModal) closeLightbox();
       });
+
+      // Dukungan swipe kiri/kanan pada layar sentuh untuk galeri foto
+      let touchStartX = 0;
+      let touchStartY = 0;
+      lightboxModal.addEventListener(
+        "touchstart",
+        (e) => {
+          if (!e.touches || e.touches.length !== 1) return;
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+        },
+        { passive: true }
+      );
+      lightboxModal.addEventListener(
+        "touchend",
+        (e) => {
+          if (!e.changedTouches || e.changedTouches.length !== 1) return;
+          const dx = e.changedTouches[0].clientX - touchStartX;
+          const dy = e.changedTouches[0].clientY - touchStartY;
+          if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+            stepLightbox(dx < 0 ? 1 : -1);
+          }
+        },
+        { passive: true }
+      );
     }
 
     document.addEventListener("keydown", (e) => {
